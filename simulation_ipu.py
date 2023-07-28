@@ -1,7 +1,9 @@
 import schnetpack
 import torch
+from schnetpack import properties
 from schnetpack.md import Simulator, UniformInit, System
 from schnetpack.md.integrators import VelocityVerlet
+from schnetpack.md.simulation_hooks import MoleculeStream, PropertyStream, FileLogger
 from schnetpack.model import AtomisticModel
 from schnetpack.ipu_modules import IPUCalculator, MultiTempLangevinThermostat
 
@@ -36,6 +38,7 @@ coordinates = "data/chignolin_ca_initial_coords.xtc"
 forcefield = "data/chignolin_priors_fulldata.yaml"
 initial_temperature = 300
 log_file = "sim_chognolin_log.log"
+energy_log_file = "chignolin_energy_log.log"
 
 
 def deactivate_postprocessing(model: AtomisticModel) -> AtomisticModel:
@@ -110,8 +113,24 @@ def main():
 
     thermostat = MultiTempLangevinThermostat(torch.linspace(100, 800, n_batches), 10)
 
+    buffer_size = 100
+    # Set up data streams to store positions, momenta and the energy
+    data_streams = [
+        MoleculeStream(store_velocities=True),
+        PropertyStream(target_properties=[properties.energy]),
+    ]
+
+    file_logger = FileLogger(
+        energy_log_file,
+        buffer_size,
+        data_streams=data_streams,
+        every_n_steps=1,  # logging frequency
+        precision=32,  # floating point precision used in hdf5 database
+    )
+
     simulator_hooks = [
-        thermostat
+        thermostat,
+        file_logger
     ]
 
     md_simulator = Simulator(
