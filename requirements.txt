@@ -1,4 +1,4 @@
 numpy==1.23.5
-torchmd @ git+https://github.com/Bedledl/torchmd-ipu.git@wip
-torchmd-net @ git+https://github.com/Bedledl/torchmd-net-ipu.git@wip
-pytorch-lightning
+schnetpack @ git+https://github.com/Bedledl/schnetpack_ipu.git@min-working
+moleculekit
+torchmd_cg
