@@ -24,7 +24,7 @@ forces = "data/chignolin_ca_forces.npy"
 embeddings = "data/chignolin_ca_embeddings.npy"
 n_neighbors = 5
 n_atoms = 10# TODO only for chgnolin
-n_batches = 3
+n_batches = 32
 
 #other parameter
 cutoff = 5.
