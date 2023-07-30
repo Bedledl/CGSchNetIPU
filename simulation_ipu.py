@@ -11,7 +11,14 @@ from utils.create_model import create_model
 
 from utils.molecule_conversion import get_moleculekit_obj, moleculekit2ase
 
-run_on_ipu = True
+run_on_ipu = False
+
+if torch.cuda.is_available():
+    cuda = True
+    print("Cuda is available. Try to run model on GPU")
+else:
+    print("Cuda is not available. If no IPU run is configured, the model runs on CPU.")
+    cuda = False
 
 #create model parameter:
 n_atom_basis = 32
@@ -76,6 +83,11 @@ def main():
     model.to(torch.float32)
     model.eval()
     model = deactivate_postprocessing(model)
+
+    if cuda:
+        model.to("cuda:0")
+
+
 
     # get molecule object
     mk_mol = get_moleculekit_obj(pdb_file)
