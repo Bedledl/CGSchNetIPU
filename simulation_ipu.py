@@ -66,13 +66,14 @@ def main():
     # get molecule object
     mk_mol = get_moleculekit_obj(pdb_file)
     ase_mol = moleculekit2ase(mk_mol)
+    n_atoms = ase_mol.get_number_of_atoms()
 
     # create model
     model = create_model(
         n_atom_basis=n_atom_basis,
         n_rbf=n_rbf,
         k_neighbors=n_neighbors,
-        n_atoms=ase_mol.get_number_of_atoms(),
+        n_atoms=n_atoms,
         n_batches=n_batches,
         rbf_cutoff=cutoff,
         n_interactions=3,
