@@ -11,7 +11,7 @@ from utils.create_model import create_model
 
 from utils.molecule_conversion import get_moleculekit_obj, moleculekit2ase
 
-run_on_ipu = False
+run_on_ipu = True
 
 if torch.cuda.is_available():
     cuda = True
@@ -26,12 +26,8 @@ energy_key = "energy"
 forces_key = "forces"
 n_rbf = 20
 cutoff = 5.
-coords = "data/chignolin_ca_coords.npy"
-forces = "data/chignolin_ca_forces.npy"
-embeddings = "data/chignolin_ca_embeddings.npy"
 n_neighbors = 5
-n_atoms = 10# TODO only for chgnolin
-n_batches = 32
+n_batches = 1
 
 #other parameter
 cutoff = 5.
@@ -39,10 +35,8 @@ cutoff_shell = 2.
 model_path = "train_chignolin/best_inference_model"
 device = "cpu"
 time_step = 0.5
-pdb_file = "data/chignolin_cln025.pdb"
-topology = "data/chignolin_ca_top.psf"
-coordinates = "data/chignolin_ca_initial_coords.xtc"
-forcefield = "data/chignolin_priors_fulldata.yaml"
+#pdb_file = "data/chignolin_cln025.pdb"
+pdb_file = "data/albumin.pdb"
 initial_temperature = 300
 log_file = "sim_chognolin_log.log"
 energy_log_file = "chignolin_energy_log.log"
@@ -68,12 +62,17 @@ def deactivate_postprocessing(model: AtomisticModel) -> AtomisticModel:
 
 
 def main():
+
+    # get molecule object
+    mk_mol = get_moleculekit_obj(pdb_file)
+    ase_mol = moleculekit2ase(mk_mol)
+
     # create model
     model = create_model(
         n_atom_basis=n_atom_basis,
         n_rbf=n_rbf,
         k_neighbors=n_neighbors,
-        n_atoms=n_atoms,
+        n_atoms=ase_mol.get_number_of_atoms(),
         n_batches=n_batches,
         rbf_cutoff=cutoff,
         n_interactions=3,
@@ -89,9 +88,6 @@ def main():
 
 
 
-    # get molecule object
-    mk_mol = get_moleculekit_obj(pdb_file)
-    ase_mol = moleculekit2ase(mk_mol)
 
     # now create Simulation environment
     md_calculator = IPUCalculator(
