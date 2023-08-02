@@ -53,6 +53,9 @@ def get_moleculekit_obj(pdb_file):
     amino_level_mol.masses = np.zeros(amino_level_mol.numAtoms)
 
     for i in range(n_atoms):
+        if atom_level_mol.record[i] != "ATOM":
+            continue
+
         amino_level_mol.coords[index[i]] += atom_level_mol.coords[i]
         atomic_number = atomic_numbers[atom_level_mol.element[i]]
         amino_level_mol.masses[index[i]] += atomic_masses[atomic_number]
