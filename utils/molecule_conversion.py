@@ -56,6 +56,12 @@ def get_moleculekit_obj(pdb_file):
         if atom_level_mol.record[i] != "ATOM":
             continue
 
+        print(amino_level_mol.numAtoms)
+        if index[i] > amino_level_mol.numAtoms - 1:
+            print("ATOM records has molecule index > than available in the converted Amino-Acid Level Moecule Object.")
+            continue
+
+
         amino_level_mol.coords[index[i]] += atom_level_mol.coords[i]
         atomic_number = atomic_numbers[atom_level_mol.element[i]]
         amino_level_mol.masses[index[i]] += atomic_masses[atomic_number]
@@ -63,6 +69,11 @@ def get_moleculekit_obj(pdb_file):
     amino_indices, amino_atom_num = np.unique(index, return_counts=True)
 
     for amino_index, num in zip(amino_indices, amino_atom_num):
+
+        if amino_index > amino_level_mol.numAtoms - 1:
+            print("ATOM records has molecule index > than available in the converted Amino-Acid Level Moecule Object.")
+            continue
+
         amino_level_mol.coords[amino_index] = amino_level_mol.coords[amino_index]/num
 
     return amino_level_mol
